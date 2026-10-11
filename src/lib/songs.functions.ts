@@ -7,11 +7,16 @@ const modelSchema = z.enum(["astra", "gemini", "opus"]);
 
 export const analyzePhoto = createServerFn({ method: "POST" })
   .inputValidator(
-    z.object({ image: z.string().startsWith("data:image/").max(8_000_000), model: modelSchema }).parse,
+    z.object({
+      image: z.string().startsWith("data:image/").max(8_000_000),
+      model: modelSchema,
+      gps: z.object({ lat: z.number().min(-90).max(90), lng: z.number().min(-180).max(180) }).nullable().optional(),
+    }).parse,
   )
   .handler(async ({ data }) => {
     const { callModel, parseJson, nimbleSearch, nimbleEnabled } = await import("./ai.server");
     try {
+      const place = data.gps ? await reverseGeocode(data.gps.lat, data.gps.lng) : null;
       const vision = parseJson<{
         summary: string;
         mood: string;
@@ -27,7 +32,7 @@ export const analyzePhoto = createServerFn({ method: "POST" })
         }),
       );
 
-      const queries = (vision.searchQueries ?? []).slice(0, 2);
+      const queries = [...(place ? [`${place.short} history and culture`] : []), ...(vision.searchQueries ?? [])].slice(0, 2);
       const web = (await Promise.all(queries.map(nimbleSearch))).flat();
 
       let webItems: ContextItem[] = [];
@@ -50,6 +55,9 @@ export const analyzePhoto = createServerFn({ method: "POST" })
       }
 
       const items: ContextItem[] = [
+        ...(place
+          ? [{ id: "loc", title: `Taken in ${place.short}`, detail: `This photo was taken at ${place.full}.`, source: "location" as const }]
+          : []),
         ...(vision.details ?? []).slice(0, 6).map((d, i) => ({
           id: `p${i}`,
           title: String(d.title),
@@ -64,6 +72,7 @@ export const analyzePhoto = createServerFn({ method: "POST" })
         mood: String(vision.mood ?? ""),
         items,
         webSearched: nimbleEnabled(),
+        location: place ? { lat: data.gps!.lat, lng: data.gps!.lng, name: place.full } : null,
         sources: web.filter((w) => w.url).map((w) => ({ title: w.title, url: w.url })),
       };
     } catch (e: any) {
@@ -129,3 +138,22 @@ Return JSON {"title": string, "globalStyles": 3-6 short music style tags (genre,
       return { ok: false as const, error: e?.message ?? "Something went wrong" };
     }
   });
+
+async function reverseGeocode(lat: number, lng: number): Promise<{ short: string; full: string } | null> {
+  try {
+    const r = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&lat=${lat}&lon=${lng}`,
+      { headers: { "User-Agent": "Snapsong/1.0 (picture-playlist-project.lovable.app)", "Accept-Language": "en" } },
+    );
+    if (!r.ok) return null;
+    const j: any = await r.json();
+    const a = j.address ?? {};
+    const city = a.city || a.town || a.village || a.suburb || a.county;
+    const spot = a.neighbourhood || a.suburb || a.road;
+    const short = [spot !== city ? spot : null, city].filter(Boolean).join(", ") || a.country || "";
+    const full = [spot, city, a.state, a.country].filter(Boolean).filter((v, i, arr) => arr.indexOf(v) === i).join(", ");
+    return short ? { short, full: full || short } : null;
+  } catch {
+    return null;
+  }
+}
