@@ -30,8 +30,8 @@ export function PoweredBy() {
         </a>
         {/* Snowflake */}
         <a href="https://www.snowflake.com" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-muted-foreground transition hover:text-foreground" aria-label="Snowflake">
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor" aria-hidden="true">
-            <path d="M12 1.6c.4 0 .7.3.7.7v2.4l1.9-1.1a.7.7 0 1 1 .7 1.2l-2.6 1.5v3.2l2.8-1.6-.0-3.1a.7.7 0 1 1 1.4 0v2.3l2.1-1.2a.7.7 0 1 1 .7 1.2l-2.1 1.2 1.9 1.1a.7.7 0 0 1-.7 1.2l-2.6-1.5-2.8 1.6 2.8 1.6 2.6-1.5a.7.7 0 0 1 .7 1.2l-1.9 1.1 2.1 1.2a.7.7 0 1 1-.7 1.2l-2.1-1.2v2.3a.7.7 0 1 1-1.4 0v-3.1l-2.8-1.6v3.2l2.6 1.5a.7.7 0 1 1-.7 1.2l-1.9-1.1v2.4a.7.7 0 1 1-1.4 0v-2.4l-1.9 1.1a.7.7 0 1 1-.7-1.2l2.6-1.5v-3.2l-2.8 1.6v3.1a.7.7 0 1 1-1.4 0v-2.3l-2.1 1.2a.7.7 0 1 1-.7-1.2l2.1-1.2-1.9-1.1a.7.7 0 1 1 .7-1.2l2.6 1.5 2.8-1.6-2.8-1.6-2.6 1.5a.7.7 0 1 1-.7-1.2l1.9-1.1-2.1-1.2a.7.7 0 1 1 .7-1.2l2.1 1.2V5.4a.7.7 0 1 1 1.4 0v3.1l2.8 1.6V6.9l-2.6-1.5a.7.7 0 1 1 .7-1.2l1.9 1.1V2.3c0-.4.3-.7.7-.7z" />
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden="true">
+            <path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M12 2l-2 2.2M12 2l2 2.2M12 22l-2-2.2M12 22l2-2.2M3.3 7l2.9.4M3.3 7l.4 2.9M20.7 17l-2.9-.4M20.7 17l-.4-2.9M3.3 17l2.9-.4M3.3 17l.4-2.9M20.7 7l-2.9.4M20.7 7l-.4 2.9" />
           </svg>
           <span className="font-semibold">Snowflake</span>
         </a>
