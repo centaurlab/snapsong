@@ -1,7 +1,7 @@
 # Roadmap
 
 - [x] Correct the lyric highlight running one line ahead
-- [ ] Validate and tighten song file read permissions
+- [x] Validate and tighten song file read permissions
 
 - [ ] Connect custom domain snapsong.now (Dynadot A + TXT records live for root and www; verification click pending in Project Settings → Domains)
 
