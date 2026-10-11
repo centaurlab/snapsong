@@ -24,6 +24,20 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
   const lines = useMemo(() => timeLyrics(sections, dur), [sections, dur]);
   const active = activeLyricIndex(lines, t);
 
+  // Read the audio clock each frame while playing; timeupdate alone can lag a beat.
+  useEffect(() => {
+    if (!playing) return;
+    let frame = 0;
+    const tick = () => {
+      const audio = audioRef.current;
+      if (!audio) return;
+      setT(audio.currentTime);
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [playing]);
+
   useEffect(() => {
     lineRefs.current[active]?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [active]);
@@ -70,7 +84,9 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
         src={audioUrl}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
+        onEnded={() => setPlaying(false)}
         onTimeUpdate={(e) => setT(e.currentTarget.currentTime)}
+        onSeeked={(e) => setT(e.currentTarget.currentTime)}
         onLoadedMetadata={(e) => setDur(e.currentTarget.duration)}
         autoPlay
       />
@@ -134,7 +150,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
                       lineRefs.current[i] = el;
                     }}
                     onClick={() => audioRef.current && (audioRef.current.currentTime = lyricHighlightStart(l))}
-                    className={`cursor-pointer font-display leading-snug transition-all duration-500 ${lyricCls} ${
+                     className={`cursor-pointer font-display leading-snug ${lyricCls} ${
                       i === active ? "scale-[1.02] text-foreground" : i < active ? "text-muted-foreground/60" : "text-muted-foreground"
                     }`}
                   >
