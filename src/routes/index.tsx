@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { SongPlayer } from "@/components/SongPlayer";
+import { PoweredBy } from "@/components/PoweredBy";
 import { analyzePhoto, createSong } from "@/lib/songs.functions";
 import type { ContextItem, PlannedSection } from "@/lib/song-plan";
 
@@ -260,6 +261,7 @@ function Index() {
           </div>
         </div>
       )}
+      <PoweredBy />
     </main>
   );
 }
