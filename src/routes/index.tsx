@@ -98,7 +98,7 @@ function ModelPicker({ model, onChange }: { model: Model; onChange: (m: Model) =
                 <span className="text-sm font-semibold">{m.label}</span>
                 {active && <Check className="ml-auto h-4 w-4 text-primary" />}
               </span>
-              <span className="mt-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/70">{m.provider}</span>
+              <span className="mt-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/90">{m.provider}</span>
               <span className="mt-1 block text-sm text-foreground/80">{m.blurb}</span>
             </button>
           );
