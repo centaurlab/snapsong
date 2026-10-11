@@ -23,7 +23,7 @@ export function SiteHeader() {
           </Link>
           {ready && !user && (
             <Button asChild size="sm" variant="secondary" className="ml-2 rounded-full">
-              <Link to="/auth">Sign in</Link>
+              <Link to="/auth" search={{ redirect: "/" }}>Sign in</Link>
             </Button>
           )}
           {user && (
