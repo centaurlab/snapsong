@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 
 export function useUser() {
   const [user, setUser] = useState<User | null>(null);
@@ -20,9 +19,8 @@ export function useUser() {
   return { user, ready };
 }
 
-export async function signInWithGoogle() {
-  const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-  if (res.error) throw res.error;
+export function goToSignIn() {
+  window.location.assign("/auth?redirect=" + encodeURIComponent(window.location.pathname));
 }
 
 export function displayName(user: User | null) {
