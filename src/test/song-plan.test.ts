@@ -31,4 +31,9 @@ describe("song plan", () => {
     expect(t[1]!.start).toBe(20);
     expect(t[1]!.end).toBe(30);
   });
+  it("stretches lyric timing to the real song length so it doesn't drift", () => {
+    const t = timeLyrics([{ name: "Verse", styles: [], durationMs: 100000, lines: ["a", "b"] }], 120);
+    expect(t[1]!.start).toBe(60);
+    expect(t[1]!.end).toBe(120);
+  });
 });
