@@ -107,6 +107,7 @@ function Index() {
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [form, setForm] = useState({ names: "", mood: "", genre: "", notes: "", length: "medium" as "short" | "medium" | "long" });
   const [song, setSong] = useState<Song | null>(null);
+  const step = useStepProgress(busy);
 
   useEffect(() => () => { if (song) URL.revokeObjectURL(song.audioUrl); }, [song]);
 
@@ -216,8 +217,8 @@ function Index() {
 
           <div className="space-y-8">
             {busy === "analyzing" && (
-              <div className="flex items-center gap-3 rounded-2xl bg-card p-6">
-                <Loader2 className="h-5 w-5 animate-spin text-primary" /> Reading your photo and searching the web…
+              <div className="rounded-2xl bg-card p-6">
+                <StepProgress steps={ANALYZE_STEPS} active={step} />
               </div>
             )}
 
