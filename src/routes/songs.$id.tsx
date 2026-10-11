@@ -7,10 +7,10 @@ import { getSong } from "@/lib/songs-db";
 export const Route = createFileRoute("/songs/$id")({
   head: () => ({
     meta: [
-      { title: "Listen — Snapsong" },
-      { name: "description", content: "An original song made from a photo on Snapsong." },
-      { property: "og:title", content: "Listen — Snapsong" },
-      { property: "og:description", content: "An original song made from a photo on Snapsong." },
+      { title: "Listen — SnapSong" },
+      { name: "description", content: "An original song made from a photo on SnapSong." },
+      { property: "og:title", content: "Listen — SnapSong" },
+      { property: "og:description", content: "An original song made from a photo on SnapSong." },
       { property: "og:type", content: "music.song" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

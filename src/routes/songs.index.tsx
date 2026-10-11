@@ -7,10 +7,10 @@ import { listSongs } from "@/lib/songs-db";
 export const Route = createFileRoute("/songs/")({
   head: () => ({
     meta: [
-      { title: "Song Directory — Snapsong" },
-      { name: "description", content: "Listen to songs people made from their photos on Snapsong." },
-      { property: "og:title", content: "Song Directory — Snapsong" },
-      { property: "og:description", content: "Listen to songs people made from their photos on Snapsong." },
+      { title: "Song Directory — SnapSong" },
+      { name: "description", content: "Listen to songs people made from their photos on SnapSong." },
+      { property: "og:title", content: "Song Directory — SnapSong" },
+      { property: "og:description", content: "Listen to songs people made from their photos on SnapSong." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

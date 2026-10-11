@@ -143,7 +143,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<{ short: string
   try {
     const r = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&lat=${lat}&lon=${lng}`,
-      { headers: { "User-Agent": "Snapsong/1.0 (picture-playlist-project.lovable.app)", "Accept-Language": "en" } },
+      { headers: { "User-Agent": "SnapSong/1.0 (picture-playlist-project.lovable.app)", "Accept-Language": "en" } },
     );
     if (!r.ok) return null;
     const j: any = await r.json();

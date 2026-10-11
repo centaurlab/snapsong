@@ -18,9 +18,9 @@ import type { ContextItem, PlannedSection } from "@/lib/song-plan";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Snapsong — Turn your photos into songs" },
+      { title: "SnapSong — Turn your photos into songs" },
       { name: "description", content: "Upload a photo, pick what matters, and get an original song with synced lyrics." },
-      { property: "og:title", content: "Snapsong — Turn your photos into songs" },
+      { property: "og:title", content: "SnapSong — Turn your photos into songs" },
       { property: "og:description", content: "Upload a photo, pick what matters, and get an original song with synced lyrics." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
