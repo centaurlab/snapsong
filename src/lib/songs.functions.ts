@@ -27,7 +27,7 @@ export const analyzePhoto = createServerFn({ method: "POST" })
           model: data.model,
           system:
             "You are a perceptive photo analyst who finds the emotional story in pictures for songwriters. Reply with JSON only.",
-          text: `Study this photo. Return JSON: {"summary": one evocative sentence, "mood": 2-4 words, "details": 6 items of {"title": short label, "detail": one vivid sentence} covering people, place, objects, light, season, emotion, any visible text/landmarks, "searchQueries": 2 short web search queries that could reveal real-world context (landmark, event, culture, place) — empty array if nothing identifiable}.`,
+          text: `${place ? `This photo was taken at ${place.full}. ` : ""}Study this photo. Return JSON: {"summary": one evocative sentence, "mood": 2-4 words, "details": 6 items of {"title": short label, "detail": one vivid sentence} covering people, place, objects, light, season, emotion, any visible text/landmarks, "searchQueries": 2 short web search queries that could reveal real-world context (landmark, event, culture, place) — empty array if nothing identifiable}.`,
           imageDataUrl: data.image,
         }),
       );
