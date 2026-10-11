@@ -31,9 +31,9 @@ export const Route = createFileRoute("/")({
 
 type Model = "astra" | "gemini" | "opus";
 const MODELS: { key: Model; label: string; provider: string; blurb: string }[] = [
-  { key: "astra", label: "Astra", provider: "OpenAI", blurb: "Fast, playful phrasing" },
-  { key: "gemini", label: "Gemini", provider: "Google", blurb: "Bright, visual imagery" },
-  { key: "opus", label: "Opus 5.5", provider: "Anthropic", blurb: "Deep, literary detail" },
+  { key: "astra", label: "Astra", provider: "OpenAI", blurb: "Richest writing, deepest thinking" },
+  { key: "gemini", label: "Gemini", provider: "Google", blurb: "Quickest to pick up the photo" },
+  { key: "opus", label: "Opus 5.5", provider: "Anthropic", blurb: "Deliberate, richly detailed" },
 ];
 
 function ModelMark({ model }: { model: Model }) {
