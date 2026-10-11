@@ -30,11 +30,83 @@ export const Route = createFileRoute("/")({
 });
 
 type Model = "astra" | "gemini" | "opus";
-const MODELS: { key: Model; label: string }[] = [
-  { key: "astra", label: "Astra" },
-  { key: "gemini", label: "Gemini" },
-  { key: "opus", label: "Opus 5.5" },
+const MODELS: { key: Model; label: string; provider: string; blurb: string }[] = [
+  { key: "astra", label: "Astra", provider: "OpenAI", blurb: "Fast, playful phrasing" },
+  { key: "gemini", label: "Gemini", provider: "Google", blurb: "Bright, visual imagery" },
+  { key: "opus", label: "Opus 5.5", provider: "Anthropic", blurb: "Deep, literary detail" },
 ];
+
+function ModelMark({ model }: { model: Model }) {
+  if (model === "gemini")
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden="true">
+        <defs>
+          <linearGradient id="model-gemini-grad" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stopColor="#4285F4" />
+            <stop offset="45%" stopColor="#9B72CB" />
+            <stop offset="100%" stopColor="#D96570" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M12 1.5c.6 4.8 2.6 7.4 5.7 8.3 1.9.5 3.5.6 4.8.7-4.9.9-7.9 3-8.9 7.9-.2 1.1-.3 2.4-.3 4.1-.9-4.9-3-7.9-7.9-8.9-1.1-.2-2.4-.3-4.1-.3 4.9-.9 7.9-3 8.9-7.9.2-1.1.3-2.4.3-3.9z"
+          fill="url(#model-gemini-grad)"
+        />
+      </svg>
+    );
+  if (model === "opus") {
+    const rays = [-60, -40, -20, 0, 20, 40, 60].map((a) => {
+      const r = (a * Math.PI) / 180;
+      return { x: 12 + Math.sin(r) * 17, y: 20 - Math.cos(r) * 17 };
+    });
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
+        {rays.map((p, i) => (
+          <line key={i} x1="12" y1="20" x2={p.x} y2={p.y} />
+        ))}
+      </svg>
+    );
+  }
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true">
+      {[0, 60, 120, 180, 240, 300].map((deg) => (
+        <ellipse key={deg} cx="12" cy="7" rx="2.7" ry="5" transform={`rotate(${deg} 12 12)`} />
+      ))}
+    </svg>
+  );
+}
+
+function ModelPicker({ model, onChange }: { model: Model; onChange: (m: Model) => void }) {
+  return (
+    <div className="mx-auto mt-12 max-w-2xl">
+      <p className="text-center text-xs uppercase tracking-[0.2em] text-muted-foreground">Written by</p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-3" role="radiogroup" aria-label="AI model">
+        {MODELS.map((m) => {
+          const active = model === m.key;
+          return (
+            <button
+              key={m.key}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => onChange(m.key)}
+              className={`relative rounded-2xl border p-4 text-left transition ${
+                active ? "border-primary/70 bg-primary/10 shadow-glow" : "border-border bg-card/60 hover:border-primary/40 hover:bg-card"
+              }`}
+            >
+              <span className="flex items-center gap-2">
+                <ModelMark model={m.key} />
+                <span className="text-sm font-semibold">{m.label}</span>
+                {active && <Check className="ml-auto h-4 w-4 text-primary" />}
+              </span>
+              <span className="mt-2 block text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground/90">{m.provider}</span>
+              <span className="mt-1 block text-sm text-foreground/80">{m.blurb}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 async function resizeImage(file: File): Promise<string> {
   const url = URL.createObjectURL(file);
@@ -262,30 +334,15 @@ function Index() {
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <div className="mb-12 flex flex-wrap items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">Model</p>
-        {image ? (
+      {image && (
+        <div className="mb-10 flex justify-end">
           <div className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm">
             <Sparkles className="h-4 w-4 text-primary" />
             <span className="font-semibold">{MODELS.find((m) => m.key === model)?.label}</span>
             <span className="text-muted-foreground">writing this song</span>
           </div>
-        ) : (
-          <div className="flex rounded-full border border-border bg-card p-1 text-sm" role="radiogroup" aria-label="AI model">
-            {MODELS.map((m) => (
-              <button
-                key={m.key}
-                role="radio"
-                aria-checked={model === m.key}
-                onClick={() => setModel(m.key)}
-                className={`rounded-full px-4 py-1.5 transition ${model === m.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {!image && (
         <section className="text-center">
@@ -305,6 +362,8 @@ function Index() {
             <span className="text-lg font-semibold">Upload a photo</span>
             <span className="text-sm text-muted-foreground">or drag it here</span>
           </button>
+
+          <ModelPicker model={model} onChange={setModel} />
         </section>
       )}
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
