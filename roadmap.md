@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Connect custom domain snapsong.now (Dynadot: A @ + A www → 185.158.133.1, TXT _lovable verification)
+
 - [x] Snapsong icon as favicon + preview icon (vinyl-record mark, public/favicon.png + apple-touch-icon.png)
 - [x] Show the chosen AI model on the screen after a photo is uploaded
 - [ ] Hide the platform "Edit with Lovable" badge on published deployments (needs approval; Pro plan or higher)
