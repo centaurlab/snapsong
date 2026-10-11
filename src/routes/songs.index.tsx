@@ -150,7 +150,7 @@ function Meta({ s }: { s: Song }) {
 function EmptyState() {
   return (
     <section className="relative overflow-hidden rounded-3xl border border-border bg-card/40 px-6 py-16 text-center md:py-24">
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center gap-6 opacity-20" aria-hidden>
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center gap-6 opacity-10" aria-hidden>
         {[0, 1, 2, 3, 4].map((i) => (
           <Disc3 key={i} className="h-40 w-40 shrink-0 animate-spin text-primary" style={{ animationDuration: `${8 + i * 2}s` }} />
         ))}
