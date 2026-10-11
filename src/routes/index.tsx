@@ -67,7 +67,8 @@ async function readExif(file: File): Promise<{ gps: { lat: number; lng: number }
   }
 }
 
-type Song = { title: string; styles: string[]; sections: PlannedSection[]; audioUrl: string };
+type Song = { title: string; styles: string[]; sections: PlannedSection[]; audioUrl: string; theme: SongTheme | null };
+import type { SongTheme } from "@/lib/song-plan";
 
 const ANALYZE_STEPS = [
   "Reading your photo with the AI model…",
@@ -196,7 +197,7 @@ function Index() {
     if (!res.ok) return setError(res.error);
     const bin = Uint8Array.from(atob(res.audio), (c) => c.charCodeAt(0));
     const audioUrl = URL.createObjectURL(new Blob([bin], { type: "audio/mpeg" }));
-    setSong({ title: res.title, styles: res.styles, sections: res.sections, audioUrl });
+    setSong({ title: res.title, styles: res.styles, sections: res.sections, audioUrl, theme: res.theme });
   };
 
   const onPublish = async () => {
@@ -219,6 +220,7 @@ function Index() {
         musicModel: MUSIC_MODEL_ID,
         location: meta.gps ? { ...meta.gps, name: analysis.location?.name ?? null } : null,
         takenAt: meta.takenAt,
+        theme: song.theme,
       });
       setPublishedId(id);
       toast.success("Published to the directory!");

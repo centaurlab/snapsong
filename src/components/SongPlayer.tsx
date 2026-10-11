@@ -1,7 +1,8 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Pause, Play, Download, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { timeLyrics, type PlannedSection } from "@/lib/song-plan";
+import { timeLyrics, type PlannedSection, type SongTheme } from "@/lib/song-plan";
+import type { CSSProperties } from "react";
 
 type Props = {
   image: string;
@@ -11,9 +12,10 @@ type Props = {
   audioUrl: string;
   onRestart?: () => void;
   actions?: ReactNode;
+  theme?: SongTheme | null;
 };
 
-export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart, actions }: Props) {
+export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart, actions, theme }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const lineRefs = useRef<(HTMLParagraphElement | null)[]>([]);
   const [playing, setPlaying] = useState(false);
@@ -32,10 +34,35 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
     if (a.paused) a.play();
     else a.pause();
   };
+  useEffect(() => {
+    if (!theme) return;
+    const id = `font-${theme.font.replace(/ /g, "-")}`;
+    if (document.getElementById(id)) return;
+    const l = document.createElement("link");
+    l.id = id;
+    l.rel = "stylesheet";
+    l.href = `https://fonts.googleapis.com/css2?family=${theme.font.replace(/ /g, "+")}:wght@400;700&display=swap`;
+    document.head.appendChild(l);
+  }, [theme]);
+  // Override design tokens so the whole player takes on the song's look.
+  const themeStyle = theme
+    ? ({
+        "--background": theme.background,
+        "--foreground": theme.foreground,
+        "--primary": theme.accent,
+        "--muted-foreground": theme.muted,
+        "--card": theme.background,
+        "--border": `color-mix(in oklab, ${theme.foreground} 15%, transparent)`,
+        "--font-display": `"${theme.font}", serif`,
+        backgroundColor: theme.background,
+        color: theme.foreground,
+      } as CSSProperties)
+    : undefined;
+  const lyricCls = { sm: "text-xl md:text-2xl", md: "text-2xl md:text-3xl", lg: "text-3xl md:text-5xl" }[theme?.lyricSize ?? "md"];
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden transition-colors duration-1000" style={themeStyle}>
       <img src={image} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-3xl" />
       <div className="absolute inset-0 bg-background/60" />
       <audio
@@ -57,7 +84,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
             />
           </div>
           <div>
-            <h1 className="text-4xl font-extrabold md:text-5xl">{title}</h1>
+            <h1 className="font-display text-4xl font-extrabold md:text-5xl">{title}</h1>
             <p className="mt-2 text-sm text-muted-foreground">{styles.join(" · ")}</p>
           </div>
           <div className="space-y-3">
@@ -107,7 +134,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
                       lineRefs.current[i] = el;
                     }}
                     onClick={() => audioRef.current && (audioRef.current.currentTime = l.start)}
-                    className={`cursor-pointer font-display text-2xl leading-snug transition-all duration-500 md:text-3xl ${
+                    className={`cursor-pointer font-display leading-snug transition-all duration-500 ${lyricCls} ${
                       i === active ? "scale-[1.02] text-foreground" : i < active ? "text-muted-foreground/60" : "text-muted-foreground"
                     }`}
                   >
