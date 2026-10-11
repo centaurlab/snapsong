@@ -15,6 +15,13 @@
       "when": 1791741252857,
       "tag": "0001_migration",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791742770819,
+      "tag": "0002_add_song_theme",
+      "breakpoints": true
     }
   ]
 }
