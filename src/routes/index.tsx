@@ -18,9 +18,9 @@ import type { ContextItem, PlannedSection } from "@/lib/song-plan";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Snapsong — Turn your photos into songs" },
+      { title: "SnapSong — Turn your photos into songs" },
       { name: "description", content: "Upload a photo, pick what matters, and get an original song with synced lyrics." },
-      { property: "og:title", content: "Snapsong — Turn your photos into songs" },
+      { property: "og:title", content: "SnapSong — Turn your photos into songs" },
       { property: "og:description", content: "Upload a photo, pick what matters, and get an original song with synced lyrics." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -67,7 +67,8 @@ async function readExif(file: File): Promise<{ gps: { lat: number; lng: number }
   }
 }
 
-type Song = { title: string; styles: string[]; sections: PlannedSection[]; audioUrl: string };
+type Song = { title: string; styles: string[]; sections: PlannedSection[]; audioUrl: string; theme: SongTheme | null };
+import type { SongTheme } from "@/lib/song-plan";
 
 const ANALYZE_STEPS = [
   "Reading your photo with the AI model…",
@@ -196,7 +197,7 @@ function Index() {
     if (!res.ok) return setError(res.error);
     const bin = Uint8Array.from(atob(res.audio), (c) => c.charCodeAt(0));
     const audioUrl = URL.createObjectURL(new Blob([bin], { type: "audio/mpeg" }));
-    setSong({ title: res.title, styles: res.styles, sections: res.sections, audioUrl });
+    setSong({ title: res.title, styles: res.styles, sections: res.sections, audioUrl, theme: res.theme });
   };
 
   const onPublish = async () => {
@@ -219,6 +220,7 @@ function Index() {
         musicModel: MUSIC_MODEL_ID,
         location: meta.gps ? { ...meta.gps, name: analysis.location?.name ?? null } : null,
         takenAt: meta.takenAt,
+        theme: song.theme,
       });
       setPublishedId(id);
       toast.success("Published to the directory!");

@@ -33,6 +33,7 @@ export type Database = {
           styles: string[]
           summary: string | null
           taken_at: string | null
+          theme: Json | null
           title: string
           user_id: string
         }
@@ -54,6 +55,7 @@ export type Database = {
           styles?: string[]
           summary?: string | null
           taken_at?: string | null
+          theme?: Json | null
           title: string
           user_id: string
         }
@@ -75,6 +77,7 @@ export type Database = {
           styles?: string[]
           summary?: string | null
           taken_at?: string | null
+          theme?: Json | null
           title?: string
           user_id?: string
         }

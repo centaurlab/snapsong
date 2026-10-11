@@ -7,10 +7,10 @@ import { getSong } from "@/lib/songs-db";
 export const Route = createFileRoute("/songs/$id")({
   head: () => ({
     meta: [
-      { title: "Listen — Snapsong" },
-      { name: "description", content: "An original song made from a photo on Snapsong." },
-      { property: "og:title", content: "Listen — Snapsong" },
-      { property: "og:description", content: "An original song made from a photo on Snapsong." },
+      { title: "Listen — SnapSong" },
+      { name: "description", content: "An original song made from a photo on SnapSong." },
+      { property: "og:title", content: "Listen — SnapSong" },
+      { property: "og:description", content: "An original song made from a photo on SnapSong." },
       { property: "og:type", content: "music.song" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -32,7 +32,7 @@ function SongPage() {
   const s = q.data;
   return (
     <>
-      <SongPlayer image={s.photoUrl} audioUrl={s.audioUrl} title={s.title} styles={s.styles} sections={s.sections} />
+      <SongPlayer image={s.photoUrl} audioUrl={s.audioUrl} title={s.title} styles={s.styles} sections={s.sections} theme={s.theme} />
       <p className="mx-auto -mt-6 flex max-w-6xl flex-wrap items-center gap-x-3 px-6 pb-6 text-xs text-muted-foreground">
         <span>by {s.author_name ?? "Someone"}</span>·<span>{new Date(s.created_at).toLocaleString()}</span>
         {s.location_name && <>·<span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{s.location_name}</span></>}

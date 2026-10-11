@@ -13,7 +13,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6">
         <Link to="/" className="flex items-center gap-2 text-lg font-semibold">
-          <Disc3 className="h-6 w-6 text-primary" /> Snapsong
+          <Disc3 className="h-6 w-6 text-primary" /> SnapSong
         </Link>
         <nav className="flex items-center gap-1 text-sm">
           <Link to="/" activeOptions={{ exact: true }} activeProps={{ className: "text-foreground" }} className="rounded-full px-3 py-1.5 text-muted-foreground hover:text-foreground">
