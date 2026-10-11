@@ -94,7 +94,7 @@ function Directory() {
             </Link>
           </div>
           <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-5">
-            {(rest.length ? rest : [hero]).map((s) => (
+            {(rest.length ? rest : songs).map((s) => (
               <div key={s.id} className="group rounded-2xl p-3 transition hover:bg-card">
                 <div className="relative">
                   <img src={s.photoUrl} alt={s.title} loading="lazy" className="aspect-square w-full rounded-xl object-cover shadow-lg" />
