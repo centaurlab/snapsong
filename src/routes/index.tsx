@@ -48,6 +48,47 @@ async function resizeImage(file: File): Promise<string> {
 
 type Song = { title: string; styles: string[]; sections: PlannedSection[]; audioUrl: string };
 
+const ANALYZE_STEPS = [
+  "Reading your photo with the AI model…",
+  "Searching the web with Nimble for real-world context…",
+  "Distilling findings into song inspiration…",
+];
+const COMPOSE_STEPS = [
+  "Writing lyrics from your picks…",
+  "Arranging sections, styles and tempo…",
+  "Recording the track with ElevenLabs Music…",
+];
+
+function StepProgress({ steps, active }: { steps: string[]; active: number }) {
+  return (
+    <ol className="space-y-2.5">
+      {steps.map((s, i) => (
+        <li key={s} className={`flex items-center gap-3 text-sm transition ${i < active ? "text-muted-foreground" : i === active ? "text-foreground" : "text-muted-foreground/50"}`}>
+          {i < active ? (
+            <Check className="h-4 w-4 shrink-0 text-primary" />
+          ) : i === active ? (
+            <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
+          ) : (
+            <span className="h-4 w-4 shrink-0 rounded-full border border-border" />
+          )}
+          {s}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function useStepProgress(busy: null | "analyzing" | "composing") {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    if (!busy) return setStep(0);
+    setStep(0);
+    const t = setInterval(() => setStep((s) => Math.min(s + 1, (busy === "analyzing" ? ANALYZE_STEPS : COMPOSE_STEPS).length - 1)), busy === "analyzing" ? 4000 : 12000);
+    return () => clearInterval(t);
+  }, [busy]);
+  return step;
+}
+
 function Index() {
   const analyze = useServerFn(analyzePhoto);
   const compose = useServerFn(createSong);
@@ -66,6 +107,7 @@ function Index() {
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [form, setForm] = useState({ names: "", mood: "", genre: "", notes: "", length: "medium" as "short" | "medium" | "long" });
   const [song, setSong] = useState<Song | null>(null);
+  const step = useStepProgress(busy);
 
   useEffect(() => () => { if (song) URL.revokeObjectURL(song.audioUrl); }, [song]);
 
@@ -175,8 +217,8 @@ function Index() {
 
           <div className="space-y-8">
             {busy === "analyzing" && (
-              <div className="flex items-center gap-3 rounded-2xl bg-card p-6">
-                <Loader2 className="h-5 w-5 animate-spin text-primary" /> Reading your photo and searching the web…
+              <div className="rounded-2xl bg-card p-6">
+                <StepProgress steps={ANALYZE_STEPS} active={step} />
               </div>
             )}
 
@@ -248,6 +290,11 @@ function Index() {
                     <Label htmlFor="notes">Anything else?</Label>
                     <Textarea id="notes" placeholder="It's for my sister's 30th birthday, we met on this beach…" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
                   </div>
+                  {busy === "composing" && (
+                    <div className="rounded-2xl bg-card p-6">
+                      <StepProgress steps={COMPOSE_STEPS} active={step} />
+                    </div>
+                  )}
                   <Button size="lg" onClick={onCompose} disabled={!!busy || picked.size === 0} className="h-14 w-full rounded-full bg-sunset text-base font-semibold shadow-glow">
                     {busy === "composing" ? (
                       <><Loader2 className="h-5 w-5 animate-spin" /> Writing & recording your song… (up to a minute)</>
