@@ -244,19 +244,27 @@ function Index() {
     <main className="mx-auto max-w-5xl px-6 py-12">
       <div className="mb-12 flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">Model</p>
-        <div className="flex rounded-full border border-border bg-card p-1 text-sm" role="radiogroup" aria-label="AI model">
-          {MODELS.map((m) => (
-            <button
-              key={m.key}
-              role="radio"
-              aria-checked={model === m.key}
-              onClick={() => setModel(m.key)}
-              className={`rounded-full px-4 py-1.5 transition ${model === m.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
+        {image ? (
+          <div className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="font-semibold">{MODELS.find((m) => m.key === model)?.label}</span>
+            <span className="text-muted-foreground">writing this song</span>
+          </div>
+        ) : (
+          <div className="flex rounded-full border border-border bg-card p-1 text-sm" role="radiogroup" aria-label="AI model">
+            {MODELS.map((m) => (
+              <button
+                key={m.key}
+                role="radio"
+                aria-checked={model === m.key}
+                onClick={() => setModel(m.key)}
+                className={`rounded-full px-4 py-1.5 transition ${model === m.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                {m.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {!image && (
