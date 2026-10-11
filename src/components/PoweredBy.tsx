@@ -1,3 +1,6 @@
+import aiEngineerAsset from "@/assets/ai-engineer-ny.png.asset.json";
+import mlhAsset from "@/assets/mlh.png.asset.json";
+
 export function PoweredBy() {
   return (
     <footer className="mx-auto mt-16 flex max-w-5xl flex-col items-center gap-3 px-6 pb-10">
@@ -38,6 +41,33 @@ export function PoweredBy() {
             <path d="M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M12 2l-2 2.2M12 2l2 2.2M12 22l-2-2.2M12 22l2-2.2M3.3 7l2.9.4M3.3 7l.4 2.9M20.7 17l-2.9-.4M20.7 17l-.4-2.9M3.3 17l2.9-.4M3.3 17l.4-2.9M20.7 7l-2.9.4M20.7 7l-.4 2.9" />
           </svg>
           <span className="font-semibold">Snowflake</span>
+        </a>
+      </div>
+
+      {/* Thanks — event organizer marks, lifted from the event poster on luma.com */}
+      <div className="mt-6 flex w-full max-w-md items-center gap-4">
+        <span className="h-px flex-1 bg-border" aria-hidden="true" />
+        <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">With thanks to</p>
+        <span className="h-px flex-1 bg-border" aria-hidden="true" />
+      </div>
+      <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+        <a
+          href="https://luma.com/AIEngineerNYHackathon"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="AI Engineer New York"
+          className="opacity-60 transition hover:opacity-100"
+        >
+          <img src={aiEngineerAsset.url} alt="AI Engineer New York" className="h-4 w-auto" />
+        </a>
+        <a
+          href="https://mlh.com"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Major League Hacking"
+          className="opacity-60 transition hover:opacity-100"
+        >
+          <img src={mlhAsset.url} alt="Major League Hacking" className="h-4 w-auto" />
         </a>
       </div>
     </footer>
