@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Remove the extra lyric highlight delay and verify playback timing
+
 - [x] Correct the lyric highlight running one line ahead
 - [x] Validate and tighten song file read permissions
 

@@ -28,15 +28,15 @@ export function normalizeSections(sections: PlannedSection[]): PlannedSection[] 
 
 export type TimedLine = { start: number; end: number; text: string; section: string };
 
-/** The composition estimate leads the vocals by one line; delay only the display clock. */
+/** Highlight and seek at the same estimated onset, not after the line has finished. */
 export function lyricHighlightStart(line: TimedLine): number {
-  return line.end;
+  return line.start;
 }
 
 export function activeLyricIndex(lines: TimedLine[], seconds: number): number {
   return lines.findIndex((line, i) => {
     const next = lines[i + 1];
-    const end = next ? lyricHighlightStart(next) : line.end + (line.end - line.start);
+    const end = next ? lyricHighlightStart(next) : line.end;
     return seconds >= lyricHighlightStart(line) && seconds < end;
   });
 }

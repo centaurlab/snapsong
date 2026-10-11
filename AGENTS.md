@@ -11,4 +11,4 @@
 
 - AI calls go through src/lib/ai.server.ts (raw streaming fetch per provider: Responses for OpenAI, chat completions for Gemini, Messages for Claude) — one place to swap models.
 - Nimble web search is optional: skipped silently when NIMBLE_API_KEY is absent so the app still works.
-- Songs are generated with ElevenLabs Music composition plans; lyric timing comes from section durations, with a shared one-line display delay used for both highlighting and lyric seeking because the estimates lead the vocals.
+- Songs use ElevenLabs Music composition plans; highlighting and lyric seeking share duration-scaled line onsets without a one-line delay, because waiting until line end makes the highlight lag. The player reads the audio clock each frame during playback; plan timing remains an estimate rather than vocal alignment.
