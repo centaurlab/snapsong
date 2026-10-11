@@ -2,8 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Disc3, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { displayName, signInWithGoogle, useUser } from "@/lib/use-session";
-import { toast } from "sonner";
+import { displayName, useUser } from "@/lib/use-session";
 
 export function SiteHeader() {
   const { user, ready } = useUser();
@@ -23,8 +22,8 @@ export function SiteHeader() {
             Directory
           </Link>
           {ready && !user && (
-            <Button size="sm" variant="secondary" className="ml-2 rounded-full" onClick={() => signInWithGoogle().catch((e) => toast.error(e.message))}>
-              Sign in with Google
+            <Button asChild size="sm" variant="secondary" className="ml-2 rounded-full">
+              <Link to="/auth" search={{ redirect: "/" }}>Sign in</Link>
             </Button>
           )}
           {user && (

@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { SongPlayer } from "@/components/SongPlayer";
 import { publishSong } from "@/lib/songs-db";
-import { displayName, signInWithGoogle, useUser } from "@/lib/use-session";
+import { displayName, goToSignIn, useUser } from "@/lib/use-session";
 import { MODEL_IDS, MUSIC_MODEL_ID } from "@/lib/song-plan";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -274,7 +274,7 @@ function Index() {
 
   const onPublish = async () => {
     if (!song || !image || !analysis) return;
-    if (!user) return signInWithGoogle().catch((e) => toast.error(e.message));
+    if (!user) return goToSignIn();
     setPublishing(true);
     try {
       const id = await publishSong({
