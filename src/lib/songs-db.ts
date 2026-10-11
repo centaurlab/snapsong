@@ -61,13 +61,13 @@ async function sign(paths: string[]) {
 export async function listSongs() {
   const { data, error } = await supabase
     .from("songs")
-    .select("id,title,styles,author_name,author_avatar,photo_path,location_name,created_at,analysis_model")
+    .select("id,title,styles,author_name,author_avatar,photo_path,audio_path,location_name,created_at,analysis_model")
     .eq("published", true)
     .order("created_at", { ascending: false })
     .limit(60);
   if (error) throw error;
-  const urls = await sign(data.map((s) => s.photo_path));
-  return data.map((s) => ({ ...s, photoUrl: urls.get(s.photo_path) ?? "" }));
+  const urls = await sign(data.flatMap((s) => [s.photo_path, s.audio_path]));
+  return data.map((s) => ({ ...s, photoUrl: urls.get(s.photo_path) ?? "", audioUrl: urls.get(s.audio_path) ?? "" }));
 }
 
 export async function getSong(id: string) {
