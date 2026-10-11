@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Connect custom domain snapsong.now (Dynadot: A @ + A www → 185.158.133.1, TXT _lovable verification)
+- [ ] Connect custom domain snapsong.now (Dynadot A + TXT records live for root and www; verification click pending in Project Settings → Domains)
 
 - [x] Snapsong icon as favicon + preview icon (vinyl-record mark, public/favicon.png + apple-touch-icon.png)
 - [x] Show the chosen AI model on the screen after a photo is uploaded
