@@ -22,6 +22,13 @@
       "when": 1791742770819,
       "tag": "0002_add_song_theme",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791746141518,
+      "tag": "0003_bind_song_file_reads_to_owner",
+      "breakpoints": true
     }
   ]
 }

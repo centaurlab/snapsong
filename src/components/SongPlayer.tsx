@@ -1,7 +1,7 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Pause, Play, Download, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { timeLyrics, type PlannedSection, type SongTheme } from "@/lib/song-plan";
+import { activeLyricIndex, lyricHighlightStart, timeLyrics, type PlannedSection, type SongTheme } from "@/lib/song-plan";
 import type { CSSProperties } from "react";
 
 type Props = {
@@ -22,7 +22,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
   const [t, setT] = useState(0);
   const [dur, setDur] = useState(0);
   const lines = useMemo(() => timeLyrics(sections), [sections]);
-  const active = lines.findIndex((l) => t >= l.start && t < l.end);
+  const active = activeLyricIndex(lines, t);
 
   useEffect(() => {
     lineRefs.current[active]?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -123,7 +123,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
         <div className="h-[70vh] overflow-y-auto rounded-3xl border border-border bg-card/40 p-8 backdrop-blur [mask-image:linear-gradient(transparent,black_15%,black_85%,transparent)]">
           <div className="space-y-4 py-[25vh]">
             {lines.map((l, i) => {
-              const newSection = i === 0 || lines[i - 1]!.section !== l.section;
+               const newSection = i === 0 || lines[i - 1]?.section !== l.section;
               return (
                 <div key={i}>
                   {newSection && (
@@ -133,7 +133,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
                     ref={(el) => {
                       lineRefs.current[i] = el;
                     }}
-                    onClick={() => audioRef.current && (audioRef.current.currentTime = l.start)}
+                    onClick={() => audioRef.current && (audioRef.current.currentTime = lyricHighlightStart(l))}
                     className={`cursor-pointer font-display leading-snug transition-all duration-500 ${lyricCls} ${
                       i === active ? "scale-[1.02] text-foreground" : i < active ? "text-muted-foreground/60" : "text-muted-foreground"
                     }`}
