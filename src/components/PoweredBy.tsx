@@ -58,7 +58,7 @@ export function PoweredBy() {
           aria-label="AI Engineer New York"
           className="opacity-60 transition hover:opacity-100"
         >
-          <img src={aiEngineerAsset.url} alt="AI Engineer New York" className="h-7 w-auto" />
+          <img src={aiEngineerAsset.url} alt="AI Engineer New York" className="h-12 w-auto" />
         </a>
         <a
           href="https://mlh.com"
@@ -67,7 +67,7 @@ export function PoweredBy() {
           aria-label="Major League Hacking"
           className="opacity-60 transition hover:opacity-100"
         >
-          <img src={mlhAsset.url} alt="Major League Hacking" className="h-7 w-auto" />
+          <img src={mlhAsset.url} alt="Major League Hacking" className="h-12 w-auto" />
         </a>
       </div>
     </footer>
