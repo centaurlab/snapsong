@@ -290,6 +290,11 @@ function Index() {
                     <Label htmlFor="notes">Anything else?</Label>
                     <Textarea id="notes" placeholder="It's for my sister's 30th birthday, we met on this beach…" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
                   </div>
+                  {busy === "composing" && (
+                    <div className="rounded-2xl bg-card p-6">
+                      <StepProgress steps={COMPOSE_STEPS} active={step} />
+                    </div>
+                  )}
                   <Button size="lg" onClick={onCompose} disabled={!!busy || picked.size === 0} className="h-14 w-full rounded-full bg-sunset text-base font-semibold shadow-glow">
                     {busy === "composing" ? (
                       <><Loader2 className="h-5 w-5 animate-spin" /> Writing & recording your song… (up to a minute)</>
