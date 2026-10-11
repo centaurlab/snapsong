@@ -1,5 +1,5 @@
 // Shared, browser-safe song helpers.
-export type ContextItem = { id: string; title: string; detail: string; source: "photo" | "web" };
+export type ContextItem = { id: string; title: string; detail: string; source: "photo" | "web" | "location" };
 
 export type PlannedSection = { name: string; styles: string[]; durationMs: number; lines: string[] };
 
@@ -42,3 +42,11 @@ export function timeLyrics(sections: PlannedSection[]): TimedLine[] {
   }
   return out;
 }
+
+/** Model keys shown in the UI mapped to the exact model IDs recorded with each song. */
+export const MODEL_IDS = {
+  astra: "openai/gpt-6-astra",
+  gemini: "google/gemini-3.8-flash",
+  opus: "anthropic/claude-opus-5-5",
+} as const;
+export const MUSIC_MODEL_ID = "elevenlabs/music_v1";
