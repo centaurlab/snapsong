@@ -27,5 +27,5 @@ export async function signInWithGoogle() {
 
 export function displayName(user: User | null) {
   const m = (user?.user_metadata ?? {}) as Record<string, string>;
-  return m.full_name || m.name || user?.email?.split("@")[0] || "Someone";
+  return m["full_name"] || m["name"] || user?.email?.split("@")[0] || "Someone";
 }

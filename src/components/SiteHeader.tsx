@@ -8,7 +8,7 @@ import { toast } from "sonner";
 export function SiteHeader() {
   const { user, ready } = useUser();
   const name = displayName(user);
-  const avatar = (user?.user_metadata as Record<string, string> | undefined)?.avatar_url;
+  const avatar = (user?.user_metadata as Record<string, string> | undefined)?.["avatar_url"];
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-6">

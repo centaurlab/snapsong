@@ -5,7 +5,7 @@ import type { PlannedSection } from "./song-plan";
 export type PublishInput = {
   userId: string;
   authorName: string;
-  authorAvatar?: string;
+  authorAvatar?: string | undefined;
   title: string;
   styles: string[];
   sections: PlannedSection[];

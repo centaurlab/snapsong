@@ -189,7 +189,7 @@ function Index() {
       const id = await publishSong({
         userId: user.id,
         authorName: displayName(user),
-        authorAvatar: (user.user_metadata as Record<string, string>)?.avatar_url,
+        authorAvatar: (user.user_metadata as Record<string, string>)?.["avatar_url"],
         title: song.title,
         styles: song.styles,
         sections: song.sections,
