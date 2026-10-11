@@ -1,5 +1,5 @@
 // Shared, browser-safe song helpers.
-export type ContextItem = { id: string; title: string; detail: string; source: "photo" | "web" };
+export type ContextItem = { id: string; title: string; detail: string; source: "photo" | "web" | "location" };
 
 export type PlannedSection = { name: string; styles: string[]; durationMs: number; lines: string[] };
 

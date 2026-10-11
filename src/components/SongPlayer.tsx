@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { Pause, Play, Download, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { timeLyrics, type PlannedSection } from "@/lib/song-plan";
@@ -9,10 +9,11 @@ type Props = {
   styles: string[];
   sections: PlannedSection[];
   audioUrl: string;
-  onRestart: () => void;
+  onRestart?: () => void;
+  actions?: ReactNode;
 };
 
-export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart }: Props) {
+export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart, actions }: Props) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const lineRefs = useRef<(HTMLParagraphElement | null)[]>([]);
   const [playing, setPlaying] = useState(false);
@@ -34,7 +35,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative overflow-hidden">
       <img src={image} alt="" className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-3xl" />
       <div className="absolute inset-0 bg-background/60" />
       <audio
@@ -46,7 +47,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
         onLoadedMetadata={(e) => setDur(e.currentTarget.duration)}
         autoPlay
       />
-      <div className="relative mx-auto grid min-h-screen max-w-6xl items-center gap-10 px-6 py-10 lg:grid-cols-2">
+      <div className="relative mx-auto grid min-h-[calc(100vh-4rem)] max-w-6xl items-center gap-10 px-6 py-10 lg:grid-cols-2">
         <div className="space-y-6">
           <div className="overflow-hidden rounded-3xl border border-border shadow-glow">
             <img
@@ -74,7 +75,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
               <span>{fmt(t)}</span>
               <span>{fmt(dur)}</span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <Button size="lg" onClick={toggle} className="h-14 w-14 rounded-full bg-sunset p-0 shadow-glow" aria-label={playing ? "Pause" : "Play"}>
                 {playing ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
               </Button>
@@ -83,9 +84,12 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
                   <Download className="h-4 w-4" /> Download
                 </a>
               </Button>
-              <Button variant="ghost" onClick={onRestart}>
-                <RotateCcw className="h-4 w-4" /> New song
-              </Button>
+              {actions}
+              {onRestart && (
+                <Button variant="ghost" onClick={onRestart}>
+                  <RotateCcw className="h-4 w-4" /> New song
+                </Button>
+              )}
             </div>
           </div>
         </div>
