@@ -99,6 +99,24 @@ function StepProgress({ steps, active }: { steps: string[]; active: number }) {
   );
 }
 
+function SpinningVinyl() {
+  return (
+    <div className="relative h-44 w-44 animate-[spin_3s_linear_infinite] drop-shadow-[0_12px_32px_rgba(0,0,0,0.55)]">
+      <svg viewBox="0 0 200 200" className="h-full w-full">
+        <circle cx="100" cy="100" r="98" fill="#111" />
+        <circle cx="100" cy="100" r="98" fill="none" stroke="#2a2a2a" strokeWidth="1.5" />
+        {[90, 80, 70, 60, 52].map((r) => (
+          <circle key={r} cx="100" cy="100" r={r} fill="none" stroke="#242424" strokeWidth="2" />
+        ))}
+        <path d="M100 6 A94 94 0 0 1 168 36" fill="none" stroke="#3d3d3d" strokeWidth="3" strokeLinecap="round" opacity="0.7" />
+        <circle cx="100" cy="100" r="34" fill="oklch(0.72 0.17 55)" />
+        <circle cx="100" cy="100" r="34" fill="none" stroke="oklch(0.6 0.15 50)" strokeWidth="2" />
+        <circle cx="100" cy="100" r="5" fill="#0b0b0b" />
+      </svg>
+    </div>
+  );
+}
+
 function useStepProgress(busy: null | "analyzing" | "composing") {
   const [step, setStep] = useState(0);
   useEffect(() => {
@@ -375,7 +393,9 @@ function Index() {
                     <Textarea id="notes" placeholder="It's for my sister's 30th birthday, we met on this beach…" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
                   </div>
                   {busy === "composing" && (
-                    <div className="rounded-2xl bg-card p-6">
+                    <div className="flex flex-col items-center gap-6 rounded-2xl bg-card p-8">
+                      <SpinningVinyl />
+                      <p className="font-display text-lg font-semibold">Pressing your record…</p>
                       <StepProgress steps={COMPOSE_STEPS} active={step} />
                     </div>
                   )}
