@@ -9,15 +9,15 @@ describe("song plan", () => {
     expect(s.reduce((a, x) => a + x.durationMs, 0)).toBeLessThanOrEqual(180000);
   });
   it("lifts sections shorter than 3 seconds", () => {
-    expect(normalizeSections([{ name: "A", styles: [], durationMs: 500, lines: [] }])[0].durationMs).toBe(3000);
+    expect(normalizeSections([{ name: "A", styles: [], durationMs: 500, lines: [] }])[0]!.durationMs).toBe(3000);
   });
   it("times lyric lines within their section", () => {
     const t = timeLyrics([
       { name: "Intro", styles: [], durationMs: 10000, lines: [] },
       { name: "Verse", styles: [], durationMs: 20000, lines: ["a", "b"] },
     ]);
-    expect(t[0].start).toBe(10);
-    expect(t[1].start).toBe(20);
-    expect(t[1].end).toBe(30);
+    expect(t[0]!.start).toBe(10);
+    expect(t[1]!.start).toBe(20);
+    expect(t[1]!.end).toBe(30);
   });
 });

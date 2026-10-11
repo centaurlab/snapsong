@@ -16,7 +16,7 @@ export class AppError extends Error {
 }
 
 function key() {
-  const k = process.env.LOVABLE_API_KEY;
+  const k = process.env["LOVABLE_API_KEY"];
   if (!k) throw new AppError("AI is not configured", 401);
   return k;
 }
@@ -163,7 +163,7 @@ export function parseJson<T>(raw: string): T {
 export type WebFinding = { title: string; url: string; snippet: string };
 
 export async function nimbleSearch(query: string): Promise<WebFinding[]> {
-  const k = process.env.NIMBLE_API_KEY;
+  const k = process.env["NIMBLE_API_KEY"];
   if (!k) return [];
   try {
     const res = await fetch("https://sdk.nimbleway.com/v2/search", {
@@ -188,7 +188,7 @@ export async function nimbleSearch(query: string): Promise<WebFinding[]> {
   }
 }
 
-export const nimbleEnabled = () => Boolean(process.env.NIMBLE_API_KEY);
+export const nimbleEnabled = () => Boolean(process.env["NIMBLE_API_KEY"]);
 
 // ---------- ElevenLabs Music ----------
 export type Section = { name: string; styles: string[]; durationMs: number; lines: string[] };
@@ -198,7 +198,7 @@ export async function composeMusic(plan: {
   negativeStyles: string[];
   sections: Section[];
 }): Promise<string> {
-  const k = process.env.ELEVENLABS_API_KEY;
+  const k = process.env["ELEVENLABS_API_KEY"];
   if (!k) throw new AppError("ElevenLabs is not connected", 401);
   const res = await fetch("https://api.elevenlabs.io/v1/music?output_format=mp3_44100_128", {
     method: "POST",

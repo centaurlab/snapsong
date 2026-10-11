@@ -92,7 +92,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
         <div className="h-[70vh] overflow-y-auto rounded-3xl border border-border bg-card/40 p-8 backdrop-blur [mask-image:linear-gradient(transparent,black_15%,black_85%,transparent)]">
           <div className="space-y-4 py-[25vh]">
             {lines.map((l, i) => {
-              const newSection = i === 0 || lines[i - 1].section !== l.section;
+              const newSection = i === 0 || lines[i - 1]!.section !== l.section;
               return (
                 <div key={i}>
                   {newSection && (
