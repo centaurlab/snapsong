@@ -1,6 +1,6 @@
 # Roadmap
 
-- [ ] Remove the extra lyric highlight delay and verify playback timing
+- [x] Remove the extra lyric highlight delay and verify playback timing (8 tests pass; real-song seeking and playback checked; vocal alignment remains estimated)
 
 - [x] Correct the lyric highlight running one line ahead
 - [x] Validate and tighten song file read permissions
