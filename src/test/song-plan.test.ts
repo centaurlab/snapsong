@@ -15,6 +15,11 @@ describe("song plan", () => {
   it("seeks to the corrected highlight time for the chosen line", () => {
     expect(lyricHighlightStart({ start: 10, end: 15, text: "a", section: "Verse" })).toBe(10);
   });
+  it("keeps the selected lyric active when audio seeking rounds down by microseconds", () => {
+    const lines = timeLyrics([{ name: "Verse", styles: [], durationMs: 20000, lines: ["a", "b", "c", "d"] }]);
+    expect(activeLyricIndex(lines, 4.999999)).toBe(1);
+    expect(activeLyricIndex(lines, 4.99)).toBe(0);
+  });
   it("uses scaled line onsets throughout a longer recording without adding a line delay", () => {
     const lines = timeLyrics([{ name: "Verse", styles: [], durationMs: 100000, lines: ["a", "b", "c", "d"] }], 120);
     expect(activeLyricIndex(lines, 30)).toBe(1);

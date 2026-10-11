@@ -34,10 +34,12 @@ export function lyricHighlightStart(line: TimedLine): number {
 }
 
 export function activeLyricIndex(lines: TimedLine[], seconds: number): number {
+  // Audio seeks can land a few microseconds before the requested timestamp.
+  const clock = Math.round(seconds * 1000);
   return lines.findIndex((line, i) => {
     const next = lines[i + 1];
     const end = next ? lyricHighlightStart(next) : line.end;
-    return seconds >= lyricHighlightStart(line) && seconds < end;
+    return clock >= Math.round(lyricHighlightStart(line) * 1000) && clock < Math.round(end * 1000);
   });
 }
 

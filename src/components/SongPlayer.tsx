@@ -86,6 +86,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
         onPause={() => setPlaying(false)}
         onEnded={() => setPlaying(false)}
         onTimeUpdate={(e) => setT(e.currentTarget.currentTime)}
+        onSeeked={(e) => setT(e.currentTarget.currentTime)}
         onLoadedMetadata={(e) => setDur(e.currentTarget.duration)}
         autoPlay
       />
