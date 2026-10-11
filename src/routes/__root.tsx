@@ -1,3 +1,6 @@
+import { SiteHeader } from "@/components/SiteHeader";
+import { PoweredBy } from "@/components/PoweredBy";
+import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -120,7 +123,12 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+      <SiteHeader />
       <Outlet />
+      <div className="mx-auto max-w-6xl px-6">
+        <PoweredBy />
+      </div>
+      <Toaster />
     </QueryClientProvider>
   );
 }

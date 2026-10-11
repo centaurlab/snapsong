@@ -1,13 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Check, Disc3, Globe, ImagePlus, Loader2, Sparkles, Wand2 } from "lucide-react";
+import { Check, Globe, MapPin, Share2, ImagePlus, Loader2, Sparkles, Wand2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { SongPlayer } from "@/components/SongPlayer";
-import { PoweredBy } from "@/components/PoweredBy";
+import { publishSong } from "@/lib/songs-db";
+import { displayName, signInWithGoogle, useUser } from "@/lib/use-session";
+import { MODEL_IDS, MUSIC_MODEL_ID } from "@/lib/song-plan";
+import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { analyzePhoto, createSong } from "@/lib/songs.functions";
 import type { ContextItem, PlannedSection } from "@/lib/song-plan";
 
@@ -44,6 +48,23 @@ async function resizeImage(file: File): Promise<string> {
   c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
   URL.revokeObjectURL(url);
   return c.toDataURL("image/jpeg", 0.85);
+}
+
+async function readExif(file: File): Promise<{ gps: { lat: number; lng: number } | null; takenAt: string | null }> {
+  try {
+    const exifr = (await import("exifr")).default;
+    const [gps, tags] = await Promise.all([
+      exifr.gps(file).catch(() => null),
+      exifr.parse(file, ["DateTimeOriginal", "CreateDate"]).catch(() => null),
+    ]);
+    const d: Date | undefined = tags?.DateTimeOriginal ?? tags?.CreateDate;
+    return {
+      gps: gps && Number.isFinite(gps.latitude) && Number.isFinite(gps.longitude) ? { lat: gps.latitude, lng: gps.longitude } : null,
+      takenAt: d instanceof Date && !isNaN(d.getTime()) ? d.toISOString() : null,
+    };
+  } catch {
+    return { gps: null, takenAt: null };
+  }
 }
 
 type Song = { title: string; styles: string[]; sections: PlannedSection[]; audioUrl: string };
@@ -103,11 +124,16 @@ function Index() {
     items: ContextItem[];
     webSearched: boolean;
     sources: { title: string; url: string }[];
+    location: { lat: number; lng: number; name: string } | null;
   }>(null);
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [form, setForm] = useState({ names: "", mood: "", genre: "", notes: "", length: "medium" as "short" | "medium" | "long" });
   const [song, setSong] = useState<Song | null>(null);
   const step = useStepProgress(busy);
+  const { user } = useUser();
+  const [meta, setMeta] = useState<{ gps: { lat: number; lng: number } | null; takenAt: string | null }>({ gps: null, takenAt: null });
+  const [publishing, setPublishing] = useState(false);
+  const [publishedId, setPublishedId] = useState<string | null>(null);
 
   useEffect(() => () => { if (song) URL.revokeObjectURL(song.audioUrl); }, [song]);
 
@@ -115,10 +141,13 @@ function Index() {
     if (!f) return;
     setError(null);
     setAnalysis(null);
+    const exif = await readExif(f);
+    setMeta(exif);
+    setPublishedId(null);
     const data = await resizeImage(f);
     setImage(data);
     setBusy("analyzing");
-    const res = await analyze({ data: { image: data, model } }).catch((e) => ({ ok: false as const, error: String(e?.message ?? e) }));
+    const res = await analyze({ data: { image: data, model, gps: exif.gps } }).catch((e) => ({ ok: false as const, error: String(e?.message ?? e) }));
     setBusy(null);
     if (!res.ok) return setError(res.error);
     setAnalysis(res);
@@ -152,6 +181,36 @@ function Index() {
     setSong({ title: res.title, styles: res.styles, sections: res.sections, audioUrl });
   };
 
+  const onPublish = async () => {
+    if (!song || !image || !analysis) return;
+    if (!user) return signInWithGoogle().catch((e) => toast.error(e.message));
+    setPublishing(true);
+    try {
+      const id = await publishSong({
+        userId: user.id,
+        authorName: displayName(user),
+        authorAvatar: (user.user_metadata as Record<string, string>)?.avatar_url,
+        title: song.title,
+        styles: song.styles,
+        sections: song.sections,
+        summary: analysis.summary,
+        photoDataUrl: image,
+        audioUrl: song.audioUrl,
+        analysisModel: MODEL_IDS[model],
+        lyricsModel: MODEL_IDS[model],
+        musicModel: MUSIC_MODEL_ID,
+        location: meta.gps ? { ...meta.gps, name: analysis.location?.name ?? null } : null,
+        takenAt: meta.takenAt,
+      });
+      setPublishedId(id);
+      toast.success("Published to the directory!");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Couldn't publish");
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   const restart = () => {
     setSong(null);
     setImage(null);
@@ -160,14 +219,31 @@ function Index() {
     setError(null);
   };
 
-  if (song && image) return <SongPlayer image={image} {...song} onRestart={restart} />;
+  if (song && image)
+    return (
+      <SongPlayer
+        image={image}
+        {...song}
+        onRestart={restart}
+        actions={
+          publishedId ? (
+            <Button variant="secondary" asChild>
+              <Link to="/songs/$id" params={{ id: publishedId }}><Check className="h-4 w-4" /> Published</Link>
+            </Button>
+          ) : (
+            <Button variant="secondary" onClick={onPublish} disabled={publishing}>
+              {publishing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+              {user ? "Publish" : "Sign in to publish"}
+            </Button>
+          )
+        }
+      />
+    );
 
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
-      <header className="mb-12 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-2 text-lg font-semibold">
-          <Disc3 className="h-6 w-6 text-primary" /> Snapsong
-        </div>
+      <div className="mb-12 flex flex-wrap items-center justify-between gap-4">
+        <p className="text-sm text-muted-foreground">Model</p>
         <div className="flex rounded-full border border-border bg-card p-1 text-sm" role="radiogroup" aria-label="AI model">
           {MODELS.map((m) => (
             <button
@@ -181,7 +257,7 @@ function Index() {
             </button>
           ))}
         </div>
-      </header>
+      </div>
 
       {!image && (
         <section className="text-center">
@@ -239,7 +315,7 @@ function Index() {
                           className={`relative rounded-2xl border p-4 text-left transition ${on ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/50"}`}
                         >
                           <div className="flex items-center gap-2 text-sm font-semibold">
-                            {it.source === "web" ? <Globe className="h-4 w-4 text-accent" /> : <Sparkles className="h-4 w-4 text-primary" />}
+                            {it.source === "web" ? <Globe className="h-4 w-4 text-accent" /> : it.source === "location" ? <MapPin className="h-4 w-4 text-accent" /> : <Sparkles className="h-4 w-4 text-primary" />}
                             {it.title}
                             {on && <Check className="ml-auto h-4 w-4 text-primary" />}
                           </div>
@@ -308,7 +384,6 @@ function Index() {
           </div>
         </div>
       )}
-      <PoweredBy />
     </main>
   );
 }
