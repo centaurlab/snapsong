@@ -41,12 +41,17 @@ export function activeLyricIndex(lines: TimedLine[], seconds: number): number {
   });
 }
 
-/** Spread each section's lines evenly across its time window (seconds). */
-export function timeLyrics(sections: PlannedSection[]): TimedLine[] {
+/**
+ * Spread each section's lines evenly across its time window (seconds).
+ * When the real audio length is known, scale the plan to it so timing doesn't drift.
+ */
+export function timeLyrics(sections: PlannedSection[], actualSeconds = 0): TimedLine[] {
   const out: TimedLine[] = [];
+  const planned = sections.reduce((a, s) => a + s.durationMs, 0) / 1000;
+  const scale = actualSeconds > 0 && planned > 0 ? actualSeconds / planned : 1;
   let t = 0;
   for (const s of sections) {
-    const dur = s.durationMs / 1000;
+    const dur = (s.durationMs / 1000) * scale;
     const n = s.lines.length;
     s.lines.forEach((text, i) => {
       out.push({ start: t + (dur * i) / n, end: t + (dur * (i + 1)) / n, text, section: s.name });

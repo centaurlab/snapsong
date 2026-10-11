@@ -21,7 +21,7 @@ export function SongPlayer({ image, title, styles, sections, audioUrl, onRestart
   const [playing, setPlaying] = useState(false);
   const [t, setT] = useState(0);
   const [dur, setDur] = useState(0);
-  const lines = useMemo(() => timeLyrics(sections), [sections]);
+  const lines = useMemo(() => timeLyrics(sections, dur), [sections, dur]);
   const active = activeLyricIndex(lines, t);
 
   useEffect(() => {
