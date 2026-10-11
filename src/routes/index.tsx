@@ -375,7 +375,9 @@ function Index() {
                     <Textarea id="notes" placeholder="It's for my sister's 30th birthday, we met on this beach…" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
                   </div>
                   {busy === "composing" && (
-                    <div className="rounded-2xl bg-card p-6">
+                    <div className="flex flex-col items-center gap-6 rounded-2xl bg-card p-8">
+                      <SpinningVinyl />
+                      <p className="font-display text-lg font-semibold">Pressing your record…</p>
                       <StepProgress steps={COMPOSE_STEPS} active={step} />
                     </div>
                   )}
