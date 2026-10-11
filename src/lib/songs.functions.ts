@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import type { ContextItem, PlannedSection } from "./song-plan";
-import { normalizeSections } from "./song-plan";
+import { normalizeSections , THEME_FONTS, normalizeTheme} from "./song-plan";
 
 const modelSchema = z.enum(["astra", "gemini", "opus"]);
 
@@ -102,6 +102,7 @@ export const createSong = createServerFn({ method: "POST" })
         globalStyles: string[];
         negativeStyles: string[];
         sections: PlannedSection[];
+        theme?: unknown;
       }>(
         await callModel({
           model: data.model,
@@ -117,7 +118,7 @@ Genre/style: ${data.genre || "your choice that fits the photo"}
 Extra notes: ${data.notes || "none"}
 Total length about ${seconds} seconds.
 
-Return JSON {"title": string, "globalStyles": 3-6 short music style tags (genre, instruments, vocal type, tempo), "negativeStyles": 0-3 tags to avoid, "sections": array of {"name": e.g. "Intro","Verse 1","Chorus","Bridge","Outro", "styles": 1-3 tags, "durationMs": integer, "lines": lyric lines (empty array for instrumental intro)}}. Durations must sum to about ${seconds * 1000}. Each section 3000-60000ms. Keep lines short (under 12 words).`,
+Return JSON {"title": string, "globalStyles": 3-6 short music style tags (genre, instruments, vocal type, tempo), "negativeStyles": 0-3 tags to avoid, "sections": array of {"name": e.g. "Intro","Verse 1","Chorus","Bridge","Outro", "styles": 1-3 tags, "durationMs": integer, "lines": lyric lines (empty array for instrumental intro)}}. Durations must sum to about ${seconds * 1000}. Each section 3000-60000ms. Keep lines short (under 12 words). Also include "theme": {"font": one of ${JSON.stringify(THEME_FONTS)}, "background": dark-or-light hex like #112233 matching the mood, "foreground": readable hex text color on that background, "accent": vivid hex, "muted": softer hex for secondary text, "lyricSize": "sm"|"md"|"lg" (lg for bold anthems, sm for intimate)}.`,
         }),
       );
       const sections = normalizeSections(plan.sections ?? []);
@@ -132,6 +133,7 @@ Return JSON {"title": string, "globalStyles": 3-6 short music style tags (genre,
         title: String(plan.title || "Untitled"),
         styles: (plan.globalStyles ?? []).slice(0, 6),
         sections,
+        theme: normalizeTheme(plan.theme),
         audio,
       };
     } catch (e: any) {
@@ -143,7 +145,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<{ short: string
   try {
     const r = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=16&lat=${lat}&lon=${lng}`,
-      { headers: { "User-Agent": "SnapSong/1.0 (picture-playlist-project.lovable.app)", "Accept-Language": "en" } },
+      { headers: { "User-Agent": "SnapSong/1.0 (picture-playlist-project)", "Accept-Language": "en" } },
     );
     if (!r.ok) return null;
     const j: any = await r.json();

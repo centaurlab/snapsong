@@ -32,7 +32,7 @@ function SongPage() {
   const s = q.data;
   return (
     <>
-      <SongPlayer image={s.photoUrl} audioUrl={s.audioUrl} title={s.title} styles={s.styles} sections={s.sections} />
+      <SongPlayer image={s.photoUrl} audioUrl={s.audioUrl} title={s.title} styles={s.styles} sections={s.sections} theme={s.theme} />
       <p className="mx-auto -mt-6 flex max-w-6xl flex-wrap items-center gap-x-3 px-6 pb-6 text-xs text-muted-foreground">
         <span>by {s.author_name ?? "Someone"}</span>·<span>{new Date(s.created_at).toLocaleString()}</span>
         {s.location_name && <>·<span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{s.location_name}</span></>}

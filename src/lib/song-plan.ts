@@ -50,3 +50,29 @@ export const MODEL_IDS = {
   opus: "anthropic/claude-opus-5-5",
 } as const;
 export const MUSIC_MODEL_ID = "elevenlabs/music_v1";
+
+// Mood-driven look for the player, chosen by the songwriter model.
+export const THEME_FONTS = [
+  "Playfair Display", "Abril Fatface", "Bebas Neue", "Caveat", "Pacifico", "Space Mono",
+  "Cormorant Garamond", "Righteous", "Permanent Marker", "Quicksand", "Archivo Black", "Lobster",
+] as const;
+export type SongTheme = {
+  font: string;
+  background: string;
+  foreground: string;
+  accent: string;
+  muted: string;
+  lyricSize: "sm" | "md" | "lg";
+};
+const hex = (v: unknown, d: string) => (typeof v === "string" && /^#[0-9a-fA-F]{6}$/.test(v) ? v : d);
+export function normalizeTheme(t: any): SongTheme | null {
+  if (!t || typeof t !== "object") return null;
+  return {
+    font: (THEME_FONTS as readonly string[]).includes(t.font) ? t.font : "Playfair Display",
+    background: hex(t.background, "#1a1410"),
+    foreground: hex(t.foreground, "#fbeee0"),
+    accent: hex(t.accent, "#f59e0b"),
+    muted: hex(t.muted, "#b8a594"),
+    lyricSize: ["sm", "md", "lg"].includes(t.lyricSize) ? t.lyricSize : "md",
+  };
+}

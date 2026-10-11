@@ -1,6 +1,6 @@
 // Browser-side helpers for saving and reading published songs.
 import { supabase } from "@/integrations/supabase/client";
-import type { PlannedSection } from "./song-plan";
+import type { PlannedSection, SongTheme } from "./song-plan";
 
 export type PublishInput = {
   userId: string;
@@ -17,6 +17,7 @@ export type PublishInput = {
   musicModel: string;
   location: { lat: number; lng: number; name: string | null } | null;
   takenAt: string | null;
+  theme: SongTheme | null;
 };
 
 export async function publishSong(p: PublishInput) {
@@ -47,6 +48,7 @@ export async function publishSong(p: PublishInput) {
     longitude: p.location?.lng ?? null,
     location_name: p.location?.name ?? null,
     taken_at: p.takenAt,
+    theme: p.theme as never,
   });
   if (error) throw error;
   return id;
@@ -78,6 +80,7 @@ export async function getSong(id: string) {
   return {
     ...data,
     sections: data.sections as unknown as PlannedSection[],
+    theme: data.theme as unknown as SongTheme | null,
     photoUrl: urls.get(data.photo_path) ?? "",
     audioUrl: urls.get(data.audio_path) ?? "",
   };
