@@ -1,24 +1,265 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { Check, Disc3, Globe, ImagePlus, Loader2, Sparkles, Wand2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { SongPlayer } from "@/components/SongPlayer";
+import { analyzePhoto, createSong } from "@/lib/songs.functions";
+import type { ContextItem, PlannedSection } from "@/lib/song-plan";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Snapsong — Turn your photos into songs" },
+      { name: "description", content: "Upload a photo, pick what matters, and get an original song with synced lyrics." },
+      { property: "og:title", content: "Snapsong — Turn your photos into songs" },
+      { property: "og:description", content: "Upload a photo, pick what matters, and get an original song with synced lyrics." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+type Model = "astra" | "gemini" | "opus";
+const MODELS: { key: Model; label: string }[] = [
+  { key: "astra", label: "Astra" },
+  { key: "gemini", label: "Gemini" },
+  { key: "opus", label: "Opus 5.5" },
+];
+
+async function resizeImage(file: File): Promise<string> {
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  await new Promise((r, j) => ((img.onload = r), (img.onerror = j), (img.src = url)));
+  const max = 1280;
+  const s = Math.min(1, max / Math.max(img.width, img.height));
+  const c = document.createElement("canvas");
+  c.width = Math.round(img.width * s);
+  c.height = Math.round(img.height * s);
+  c.getContext("2d")!.drawImage(img, 0, 0, c.width, c.height);
+  URL.revokeObjectURL(url);
+  return c.toDataURL("image/jpeg", 0.85);
+}
+
+type Song = { title: string; styles: string[]; sections: PlannedSection[]; audioUrl: string };
+
 function Index() {
+  const analyze = useServerFn(analyzePhoto);
+  const compose = useServerFn(createSong);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [model, setModel] = useState<Model>("astra");
+  const [image, setImage] = useState<string | null>(null);
+  const [busy, setBusy] = useState<null | "analyzing" | "composing">(null);
+  const [error, setError] = useState<string | null>(null);
+  const [analysis, setAnalysis] = useState<null | {
+    summary: string;
+    mood: string;
+    items: ContextItem[];
+    webSearched: boolean;
+    sources: { title: string; url: string }[];
+  }>(null);
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [form, setForm] = useState({ names: "", mood: "", genre: "", notes: "", length: "medium" as "short" | "medium" | "long" });
+  const [song, setSong] = useState<Song | null>(null);
+
+  useEffect(() => () => { if (song) URL.revokeObjectURL(song.audioUrl); }, [song]);
+
+  const onFile = async (f?: File) => {
+    if (!f) return;
+    setError(null);
+    setAnalysis(null);
+    const data = await resizeImage(f);
+    setImage(data);
+    setBusy("analyzing");
+    const res = await analyze({ data: { image: data, model } }).catch((e) => ({ ok: false as const, error: String(e?.message ?? e) }));
+    setBusy(null);
+    if (!res.ok) return setError(res.error);
+    setAnalysis(res);
+    setPicked(new Set(res.items.slice(0, 3).map((i) => i.id)));
+    setForm((f) => ({ ...f, mood: f.mood || res.mood }));
+  };
+
+  const toggle = (id: string) =>
+    setPicked((p) => {
+      const n = new Set(p);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+
+  const onCompose = async () => {
+    if (!analysis) return;
+    setError(null);
+    setBusy("composing");
+    const res = await compose({
+      data: {
+        model,
+        summary: analysis.summary,
+        picked: analysis.items.filter((i) => picked.has(i.id)).map(({ title, detail }) => ({ title, detail })),
+        ...form,
+      },
+    }).catch((e) => ({ ok: false as const, error: String(e?.message ?? e) }));
+    setBusy(null);
+    if (!res.ok) return setError(res.error);
+    const bin = Uint8Array.from(atob(res.audio), (c) => c.charCodeAt(0));
+    const audioUrl = URL.createObjectURL(new Blob([bin], { type: "audio/mpeg" }));
+    setSong({ title: res.title, styles: res.styles, sections: res.sections, audioUrl });
+  };
+
+  const restart = () => {
+    setSong(null);
+    setImage(null);
+    setAnalysis(null);
+    setPicked(new Set());
+    setError(null);
+  };
+
+  if (song && image) return <SongPlayer image={image} {...song} onRestart={restart} />;
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="mx-auto max-w-5xl px-6 py-12">
+      <header className="mb-12 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-2 text-lg font-semibold">
+          <Disc3 className="h-6 w-6 text-primary" /> Snapsong
+        </div>
+        <div className="flex rounded-full border border-border bg-card p-1 text-sm" role="radiogroup" aria-label="AI model">
+          {MODELS.map((m) => (
+            <button
+              key={m.key}
+              role="radio"
+              aria-checked={model === m.key}
+              onClick={() => setModel(m.key)}
+              className={`rounded-full px-4 py-1.5 transition ${model === m.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {!image && (
+        <section className="text-center">
+          <h1 className="text-5xl font-extrabold leading-[1.05] md:text-7xl">
+            Every photo has a <span className="text-sunset italic">song</span> in it.
+          </h1>
+          <p className="mx-auto mt-5 max-w-xl text-lg text-muted-foreground">
+            Drop in a picture. We'll read the story, dig up context from the web, and write you an original track.
+          </p>
+          <button
+            onClick={() => fileRef.current?.click()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => { e.preventDefault(); onFile(e.dataTransfer.files[0]); }}
+            className="mx-auto mt-10 flex h-72 w-full max-w-2xl flex-col items-center justify-center gap-3 rounded-3xl border-2 border-dashed border-border bg-card/50 transition hover:border-primary hover:shadow-glow"
+          >
+            <ImagePlus className="h-10 w-10 text-primary" />
+            <span className="text-lg font-semibold">Upload a photo</span>
+            <span className="text-sm text-muted-foreground">or drag it here</span>
+          </button>
+        </section>
+      )}
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
+
+      {error && <p className="mx-auto mt-6 max-w-2xl rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm">{error}</p>}
+
+      {image && (
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+          <div className="space-y-4">
+            <img src={image} alt="Your upload" className="w-full rounded-3xl border border-border object-cover shadow-glow" />
+            {analysis && <p className="font-display text-xl italic text-muted-foreground">“{analysis.summary}”</p>}
+            <Button variant="ghost" onClick={restart} disabled={!!busy}>Choose another photo</Button>
+          </div>
+
+          <div className="space-y-8">
+            {busy === "analyzing" && (
+              <div className="flex items-center gap-3 rounded-2xl bg-card p-6">
+                <Loader2 className="h-5 w-5 animate-spin text-primary" /> Reading your photo and searching the web…
+              </div>
+            )}
+
+            {analysis && (
+              <>
+                <section>
+                  <h2 className="text-2xl font-semibold">Pick what the song is about</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {analysis.webSearched ? "Includes real-world context found on the web." : "Web context is off — showing what we see in the photo."}
+                  </p>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    {analysis.items.map((it) => {
+                      const on = picked.has(it.id);
+                      return (
+                        <button
+                          key={it.id}
+                          onClick={() => toggle(it.id)}
+                          className={`relative rounded-2xl border p-4 text-left transition ${on ? "border-primary bg-primary/10" : "border-border bg-card hover:border-primary/50"}`}
+                        >
+                          <div className="flex items-center gap-2 text-sm font-semibold">
+                            {it.source === "web" ? <Globe className="h-4 w-4 text-accent" /> : <Sparkles className="h-4 w-4 text-primary" />}
+                            {it.title}
+                            {on && <Check className="ml-auto h-4 w-4 text-primary" />}
+                          </div>
+                          <p className="mt-1 text-sm text-muted-foreground">{it.detail}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {analysis.sources.length > 0 && (
+                    <p className="mt-3 text-xs text-muted-foreground">
+                      Sources:{" "}
+                      {analysis.sources.slice(0, 4).map((s, i) => (
+                        <a key={i} href={s.url} target="_blank" rel="noreferrer" className="mr-2 underline hover:text-foreground">
+                          {s.title || new URL(s.url).hostname}
+                        </a>
+                      ))}
+                    </p>
+                  )}
+                </section>
+
+                <section className="space-y-4">
+                  <h2 className="text-2xl font-semibold">Add your touch</h2>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="names">Names</Label>
+                      <Input id="names" placeholder="Maya, Leo" value={form.names} onChange={(e) => setForm({ ...form, names: e.target.value })} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="mood">Mood</Label>
+                      <Input id="mood" placeholder="nostalgic, joyful" value={form.mood} onChange={(e) => setForm({ ...form, mood: e.target.value })} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="genre">Genre</Label>
+                      <Input id="genre" placeholder="indie folk, lo-fi, pop punk…" value={form.genre} onChange={(e) => setForm({ ...form, genre: e.target.value })} />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>Length</Label>
+                      <div className="flex gap-2">
+                        {(["short", "medium", "long"] as const).map((l) => (
+                          <Button key={l} type="button" variant={form.length === l ? "default" : "secondary"} size="sm" onClick={() => setForm({ ...form, length: l })} className="flex-1 capitalize">
+                            {l}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="notes">Anything else?</Label>
+                    <Textarea id="notes" placeholder="It's for my sister's 30th birthday, we met on this beach…" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+                  </div>
+                  <Button size="lg" onClick={onCompose} disabled={!!busy || picked.size === 0} className="h-14 w-full rounded-full bg-sunset text-base font-semibold shadow-glow">
+                    {busy === "composing" ? (
+                      <><Loader2 className="h-5 w-5 animate-spin" /> Writing & recording your song… (up to a minute)</>
+                    ) : (
+                      <><Wand2 className="h-5 w-5" /> Make my song</>
+                    )}
+                  </Button>
+                </section>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </main>
   );
 }
